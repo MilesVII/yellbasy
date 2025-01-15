@@ -114,8 +114,9 @@ export type Track = {
 	source: () => AudioBufferSourceNode,
 	remap: (low: number, high: number) => Track,
 	lerpFill: (src: Buffer) => Track,
-	derpFill: (segs: Segment[]) => Track
-} 
+	derpFill: (segs: Segment[]) => Track,
+	map: (mapper: (v: number, i: number, ri: number) => number) => Track
+}
 
 const numb = () => 0;
 export function track(length: number, src: Feel | Buffer = numb): Track {
@@ -131,7 +132,8 @@ export function track(length: number, src: Feel | Buffer = numb): Track {
 		source: () => source(buf),
 		remap: (low, high) => track(length, bufferRemap(buf, low, high)),
 		lerpFill: (src) => lerpFill(length, src),
-		derpFill: (segs: Segment[]) => derpFill(length, segs)
+		derpFill: (segs: Segment[]) => derpFill(length, segs),
+		map: (mapper) => track(length, buf.map((v, i) => mapper(v, i, i / buf.length * length)))
 	};
 }
 
@@ -139,6 +141,6 @@ export function remap(x: number, fromMin: number, fromMax: number, toMin: number
 	return (x - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
 }
 
-// function lerp(k: number, from: number, to: number) {
-// 	return from + (to - from) * k;
-// }
+export function lerp(k: number, from: number, to: number) {
+	return from + (to - from) * k;
+}
